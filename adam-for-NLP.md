@@ -1,10 +1,10 @@
-'''
+"""
 每个 batch 采样到的词有限，每次更新对 Embedding 的梯度估计都是稀疏的。
 非 momentum-based 的 Optimizer 每步只会更新采样到的词，而对于 momentum-based 的 Optimizer，
 现在所有框架的实现都会用当前的 momentum 去更新所有的词，即使这些词在连续的几十步更新里都没有被采样到。这可能会使 Embedding 过拟合。
 所以修改ADAM實現，或者可以採用 Tensorflow 的 LazyAdamOptimizer，但效果沒有這個好
-'''
-
+"""
+```python
 # for tensorflow 1.12.0
 from tensorflow.python.ops import array_ops
 from tensorflow.python.training import adam
@@ -44,3 +44,4 @@ class MaskedAdamOptimizer(adam.AdamOptimizer):
         gather_v_sqrt = math_ops.sqrt(gather_v_t)
         var_update = scatter_add(var, indices, -lr * gather_m_t / (gather_v_sqrt + epsilon_t))
         return control_flow_ops.group(*[var_update, m_t, v_t])
+```
